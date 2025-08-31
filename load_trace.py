@@ -54,7 +54,7 @@ for i, p in enumerate(base):
 for idx, entry in enumerate(stream):
     entry["id"] = idx
 
-with open("prompt_stream.json", "w", encoding="utf-8") as f:
+with open("prompt_stream2.json", "w", encoding="utf-8") as f:
     json.dump(stream, f, ensure_ascii=False, indent=2)
 
 print(f"Saved {len(stream)} prompts to prompt_stream.json")

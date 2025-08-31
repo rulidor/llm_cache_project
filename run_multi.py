@@ -1,7 +1,6 @@
 import csv
 import json
 import time
-import os
 from pathlib import Path
 from typing import List
 
@@ -11,9 +10,9 @@ from policy import LruBytePolicy, CostAwarePolicy
 from requests.exceptions import ReadTimeout
 
 # ============================
-# Global knobs (as requested)
+# Global Variables
 # ============================
-NUMBER_OF_PROMPTS = 100
+NUMBER_OF_PROMPTS = 10
 BYTE_BUDGET = 16 * 1024  # KB
 
 MODEL_NAME = "phi3:mini"
@@ -22,8 +21,7 @@ SIMILARITY_MAX_DISTANCE = 0.85
 # Synthetic answer settings (for clear eviction pressure & deterministic runs)
 USE_SYNTHETIC_ANSWERS = True
 SYNTHETIC_SIZES = [2048, 4096, 8192]  # 2 KB, 4 KB, 8 KB
-# SYNTHETIC_SIZES = [204, 409, 819]
-SYNTHETIC_SLEEP_MS = 100              # simulate model latency on misses (ms)
+SYNTHETIC_SLEEP_MS = 100 # simulate model latency on misses (ms)
 
 
 def percentile(xs: List[float], p: float) -> float:
@@ -114,11 +112,8 @@ def summarize(name: str, pol: PolicyState):
 
 
 if __name__ == "__main__":
-    # Quick canonicalization sanity check (should print equal strings)
-    print("[check] canon A:", preproc("Some  text…  “quotes” \n"))
-    print("[check] canon B:", preproc("Some text... \"quotes\""))
 
-    # ----- Policies (fair A/B with identical byte budget) -----
+    # ----- Policies Creation -----
     lru = PolicyState(
         name="lru",
         run_tag="lru-20k",
@@ -131,7 +126,7 @@ if __name__ == "__main__":
     )
     policies = [lru, costaware]
 
-    # ----- Fresh per-policy caches BEFORE the run -----
+    # ----- Fresh per-policy caches before the run -----
     for pol in policies:
         build_cache(
             run_tag=pol.run_tag,
@@ -168,7 +163,7 @@ if __name__ == "__main__":
     wall_s = time.perf_counter() - t0
     overall_tput = (len(prompts) / wall_s) if wall_s > 0 else 0.0
 
-    # ----- Results -----
+    # ----- Results Generation -----
     print(f"\nOverall: requests={len(prompts)} duration={wall_s:.2f}s "
           f"throughput={overall_tput:.2f} req/s")
 
